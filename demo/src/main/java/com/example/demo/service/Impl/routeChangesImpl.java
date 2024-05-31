@@ -94,7 +94,46 @@ public class routeChangesImpl implements RouteChangeService {
         try {
             List<TaskDetails> taskDetails = ExcelHelper.readTaskDetails(file.getInputStream());
             System.out.println("The task details in update are"+taskDetails);
-            return null;
+
+            //take the task details for the task id
+            taskDetails.forEach(taskDetails1 -> {
+                Integer taskId = Integer.parseInt(taskDetails1.getTaskId());
+                HttpEntity<Void> httpEntity= new HttpEntity<>(gethttpHeaders(accessToken));
+                stringBuilder.setLength(0);
+                String url=stringBuilder.append(baseURL).append("/main/ifsapplications/projection/v1/WorkTaskHandling.svc/JtTaskSet?$filter=(TaskSeq eq ").append(taskId).append(")").toString();
+                System.out.println("The url is"+url);
+                try {
+                    ResponseEntity<Map> responseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, Map.class);
+                    Map<String, Object> responseMap = responseEntity.getBody();
+                    System.out.println(responseMap);
+                    List<Map<String, Object>> responseList = (List<Map<String, Object>>) responseMap.get("value");
+
+                    //compare response list with task details
+                    Map<String, Object> map = responseList.get(0);
+
+                    if(!map.get("Description").equals(taskDetails1.getDescription())){
+                        System.out.println("The description is different");
+                    }
+                    if(!map.get("Site").equals(taskDetails1.getSite())){
+                        System.out.println("The site is different");
+                    }
+                    if(!map.get("PlannedStart").equals(taskDetails1.getPlannedStartDate())){
+                        System.out.println("The planned start date is different");
+                    }
+                    if(!map.get("Objstate").equals(taskDetails1.getStatus())){
+                        System.out.println("The status is different");
+                    }
+                    if(!map.get("ActualObjectId").equals(taskDetails1.getObjectId())){
+                        System.out.println("The object id is different");
+                    }
+                    if(!map.get("WorkTypeId").equals(taskDetails1.getWorkType())){
+                        System.out.println("The work type is different");
+                    }
+                }catch (Exception e){
+                    System.out.println("Failed to get task details");
+                }
+            });
+            return taskDetails;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

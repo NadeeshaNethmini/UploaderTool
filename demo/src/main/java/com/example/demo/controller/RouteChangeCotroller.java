@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +62,13 @@ public class RouteChangeCotroller {
             try {
                 List<TaskDetails> details=routeChangeService.updateTaskDetails(file,accessToken);
                 System.out.println("The details are"+details);
-                return null;
+
+                //take the task details for the task id
+               details.forEach(taskDetails -> {
+                   System.out.println("The task id is"+taskDetails.getTaskId());
+               });
+
+                return new ResponseEntity<>(details, HttpStatus.OK);
             } catch (Exception e) {
                 String message = "Could not upload the file: " + file.getOriginalFilename() + "!";
                 return null;
