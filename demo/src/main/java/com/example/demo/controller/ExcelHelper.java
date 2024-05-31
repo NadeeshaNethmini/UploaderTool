@@ -67,9 +67,15 @@ public class ExcelHelper {
     }
 
     public static String getCellValue(Cell cell) {
+        if(cell==null){
+            return null;
+        }
+
         if (cell.getCellType() == CellType.STRING) {
+            System.out.println("The cell value is"+cell.getStringCellValue());
             return cell.getStringCellValue();
         } else if (cell.getCellType() == CellType.NUMERIC) {
+            System.out.println("The cell value is"+cell.getNumericCellValue());
             if (DateUtil.isCellDateFormatted(cell)) {
                 Date date = cell.getDateCellValue();
                 SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -78,6 +84,7 @@ public class ExcelHelper {
                 return String.valueOf(cell.getNumericCellValue());
             }
         } else {
+            System.out.println("The cell type is"+cell.getCellType());
             return null;
         }
     }
@@ -295,6 +302,15 @@ public class ExcelHelper {
             System.out.println("The sheet rows"+sheet.getPhysicalNumberOfRows());
 
             for(int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+//                System.out.println("The row number is"+i);
+//                System.out.println("Task Id is"+sheet.getRow(i).getCell(0));
+//                System.out.println("Description is"+sheet.getRow(i).getCell(1));
+//                System.out.println("Site is"+sheet.getRow(i).getCell(2));
+//                System.out.println("Status is"+sheet.getRow(i).getCell(3));
+//                System.out.println("Planned Start Date is"+sheet.getRow(i).getCell(4));
+//                System.out.println("Work Type is"+sheet.getRow(i).getCell(5, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL).getStringCellValue());
+//                System.out.println("Object Id is"+sheet.getRow(i).getCell(6));
+
                 Row row = sheet.getRow(i);
                 TaskDetails taskDetails = new TaskDetails();
                 taskDetails.setTaskId(getCellValue(row.getCell(0)));

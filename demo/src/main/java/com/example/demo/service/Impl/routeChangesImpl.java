@@ -96,8 +96,8 @@ public class routeChangesImpl implements RouteChangeService {
             System.out.println("The task details in update are"+taskDetails);
 
             //take the task details for the task id
-            taskDetails.forEach(taskDetails1 -> {
-                Integer taskId = Integer.parseInt(taskDetails1.getTaskId());
+            taskDetails.forEach(taskDetail -> {
+                Integer taskId = Integer.parseInt(taskDetail.getTaskId());
                 HttpEntity<Void> httpEntity= new HttpEntity<>(gethttpHeaders(accessToken));
                 stringBuilder.setLength(0);
                 String url=stringBuilder.append(baseURL).append("/main/ifsapplications/projection/v1/WorkTaskHandling.svc/JtTaskSet?$filter=(TaskSeq eq ").append(taskId).append(")").toString();
@@ -111,24 +111,31 @@ public class routeChangesImpl implements RouteChangeService {
                     //compare response list with task details
                     Map<String, Object> map = responseList.get(0);
 
-                    if(!map.get("Description").equals(taskDetails1.getDescription())){
-                        System.out.println("The description is different");
+                    if(!Objects.equals(map.get("Description"), taskDetail.getDescription())){
+                        var payload = new HashMap<String, Object>();
+                        payload.put("Description", taskDetail.getDescription());
+                        stringBuilder.setLength(0);
+                        String updateUrl=stringBuilder.append(baseURL).append("/main/ifsapplications/projection/v1/WorkTaskHandling.svc/JtTaskSet?$filter=(TaskSeq eq ").append(taskId).append(")").toString();
+                        HttpEntity<Map<String, Object>> httpEntity1 = new HttpEntity<>(payload, gethttpHeaders(accessToken));
+                        ResponseEntity<Map> responseEntity1 = restTemplate.exchange(updateUrl, HttpMethod.PATCH, httpEntity1, Map.class);
+                        System.out.println("The response is"+responseEntity1);
                     }
-                    if(!map.get("Site").equals(taskDetails1.getSite())){
+                    if(!Objects.equals(map.get("Site"), taskDetail.getSite())){
                         System.out.println("The site is different");
                     }
-                    if(!map.get("PlannedStart").equals(taskDetails1.getPlannedStartDate())){
+                    if(!Objects.equals(map.get("PlannedStart"), taskDetail.getPlannedStartDate())){
                         System.out.println("The planned start date is different");
                     }
-                    if(!map.get("Objstate").equals(taskDetails1.getStatus())){
+                    if(!Objects.equals(map.get("Objstate"), taskDetail.getStatus())){
                         System.out.println("The status is different");
                     }
-                    if(!map.get("ActualObjectId").equals(taskDetails1.getObjectId())){
+                    if(!Objects.equals(map.get("ActualObjectId"), taskDetail.getObjectId())){
                         System.out.println("The object id is different");
                     }
-                    if(!map.get("WorkTypeId").equals(taskDetails1.getWorkType())){
+                    if(!Objects.equals(map.get("WorkTypeId"), taskDetail.getWorkType())){
                         System.out.println("The work type is different");
                     }
+                    System.out.println("Pass");
                 }catch (Exception e){
                     System.out.println("Failed to get task details");
                 }
@@ -138,6 +145,8 @@ public class routeChangesImpl implements RouteChangeService {
             throw new RuntimeException(e);
         }
     }
+
+
 
     private HttpHeaders gethttpHeaders(String accessToken) {
         HttpHeaders headers= new HttpHeaders();
